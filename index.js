@@ -36,7 +36,8 @@ app.post('/chat', async (req, res) => {
     );
 
     const reply = groqResponse.data.choices[0].message.content;
-    res.json({ reply });
+    res.json({ response: reply });
+
   } catch (error) {
     console.error('Error from GROQ API:', error.response?.data || error.message);
     res.status(500).json({ error: 'An error occurred while fetching response from Kaira.' });
