@@ -8,14 +8,14 @@ const port = process.env.PORT || 10000;
 app.use(cors());
 app.use(express.json());
 
-app.post('/api/chat', async (req, res) => {
+app.post('/chat', async (req, res) => {
   const userMessage = req.body.message;
 
   try {
     const groqResponse = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
       {
-        model: 'llama3-8b-8192',
+        model: 'mixtral-8x7b-32768',
         messages: [
           {
             role: 'system',
