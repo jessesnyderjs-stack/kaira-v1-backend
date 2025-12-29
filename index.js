@@ -1,20 +1,48 @@
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
-require('dotenv').config();
+const axios = require('axios');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 10000;
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-app.post('/chat', (req, res) => {
-  const userInput = req.body.message;
-  const botReply = `Kaira (offline): You said, "${userInput}" — but I'm not yet connected to a real AI.`;
-  res.json({ reply: botReply });
+app.post('/api/chat', async (req, res) => {
+  const userMessage = req.body.message;
+
+  try {
+    const groqResponse = await axios.post(
+      'https://api.groq.com/openai/v1/chat/completions',
+      {
+        model: 'llama3-8b-8192',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are Kaira, a thoughtful and uplifting digital assistant.',
+          },
+          {
+            role: 'user',
+            content: userMessage,
+          },
+        ],
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+        },
+      }
+    );
+
+    const reply = groqResponse.data.choices[0].message.content;
+    res.json({ reply });
+  } catch (error) {
+    console.error('Error from GROQ API:', error.response?.data || error.message);
+    res.status(500).json({ error: 'An error occurred while fetching response from Kaira.' });
+  }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
