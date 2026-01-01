@@ -15,7 +15,7 @@ app.post('/chat', async (req, res) => {
     const groqResponse = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
       {
-        model: 'mixtral-8x7b-32768',
+        model: DEFAULT_MODEL,
         messages: [
           {
             role: 'system',
