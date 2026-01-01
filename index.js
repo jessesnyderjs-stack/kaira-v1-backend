@@ -1,9 +1,12 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
-const DEFAULT_MODEL = 'llama2-70b-4096'; // 
+
 const app = express();
 const port = process.env.PORT || 10000;
+
+const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
+const OPENAI_MODEL = 'gpt-4o'; // or use 'gpt-4o-mini' if that's the final tag when available
 
 app.use(cors());
 app.use(express.json());
@@ -12,10 +15,10 @@ app.post('/chat', async (req, res) => {
   const userMessage = req.body.message;
 
   try {
-    const groqResponse = await axios.post(
-      'https://api.groq.com/openai/v1/chat/completions',
+    const openaiResponse = await axios.post(
+      OPENAI_API_URL,
       {
-        model: DEFAULT_MODEL,
+        model: OPENAI_MODEL,
         messages: [
           {
             role: 'system',
@@ -30,16 +33,16 @@ app.post('/chat', async (req, res) => {
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
         },
       }
     );
 
-    const reply = groqResponse.data.choices[0].message.content;
+    const reply = openaiResponse.data.choices[0].message.content;
     res.json({ response: reply });
 
   } catch (error) {
-    console.error('Error from GROQ API:', error.response?.data || error.message);
+    console.error('Error from OpenAI API:', error.response?.data || error.message);
     res.status(500).json({ error: 'An error occurred while fetching response from Kaira.' });
   }
 });
